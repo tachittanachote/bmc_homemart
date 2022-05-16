@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+
+        function deletePromotion(){
+
+            if(confirm('Are you sure to delete this slide?')){
+            $.ajax({
+                type: "POST",
+                url: "/admin/promotion/delete",
+                data: {id: '<%= data[0].id %>'},
+                success: function (data) {
+                    window.location.href = `/admin/promotions`;
+                },
+            });
+                }else{
+                    console.log('nothing')
+                }
+
+        }
+
+        $(function() {
+            // Multiple images preview in browser
+            var imagesPreview = function(input, placeToInsertImagePreview) {
+
+                if (input.files) {
+                    var filesAmount = input.files.length;
+
+                    for (i = 0; i < filesAmount; i++) {
+                        var reader = new FileReader();
+
+                        reader.onload = function(event) {
+                            $($.parseHTML('<img>')).attr('src', event.target.result).attr('class', 'img-thumbnail').attr('width', '200').appendTo(placeToInsertImagePreview);
+                        }
+                        reader.readAsDataURL(input.files[i]);
+                    }
+                }
+
+            };
+
+            $('#multi_files').on('change', function() {
+                $('.gallery').empty()
+                imagesPreview(this, 'div.gallery');
+            });
+        });
+
+
+        function changeImage(){
+            $('#multi_files').removeAttr('hidden')
+        }
+
+        
+        function EditInfo() {
+            var form = document.getElementById('editInfo');
+            var data = new FormData(form);
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: "POST",
+                    url: "/admin/promotion/edit",
+                    enctype: 'multipart/form-data',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    /*success: function (data) {
+                        
+                    },*/
+                    statusCode: {
+                        203: (data)=>{
+                            switch(data.msg){
+                                case "empty": alert('กรอกข้อมูลไม่ครบ') 
+                                break;
+                            }
+                        },
+                        200: (data)=>{
+                            console.log(data)
+                            alert('บันทึกแล้ว')
+                            location.reload();
+                        }
+                    }
+                });
+            });
+        }
+
+    </script>
+  </head>
+  <body>
+    <nav
+      class="navbar flex-md-nowrap p-0"
+    >
+        <h2 class="col-sm-3 col-md-2 mr-0" >Edit Promotion</h2>
+            <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <button class="btn btn-danger" onclick="deletePromotion()">Delete</button>
+                <button class="btn btn-secondary" onclick="history.back()">BACK</button>
+            </li>
+        </ul>
+    </nav>
+        <br>
+          
+        <div>
+            <br>
+            
+            <form id="editInfo">
+
+                <div class="mb-3">
+                    <label class="form-label">Image</label>
+                    <input type="text" class="form-control" name="oldimage" value="<%= data[0].image %>" hidden>
+                    <div id="old-image" class="row">
+                 
+                            <div id="oldimage" class="col">
+                                <img src="/public/uploads/<%= data[0].image %>" class="img-thumbnail" width="200">
+                                <button type="button" onclick="changeImage()">Change Image</button>
+                            </div>
+         
+                    </div>
+                </div>
+                <div class="mb-3" >
+                    <input class="form-control" type="file" id="multi_files" name="multi_files" accept='image/*' hidden>
+                    <div class="gallery"></div>
+                </div>
+
+                <input type="text" class="form-control" id="id" name="id" value="<%= data[0].id %>" hidden>
+             
+                    <div class="mb-3">
+                        <label class="form-label">Promotion's name</label>
+                        <input type="text" class="form-control" name="name" value="<%= data[0].name %>">
+                    </div>
+                    
+                
+                <button type="button" onclick="EditInfo()" class="btn btn-success">Save</button>
+          </form>
+          <br>
+
+          <div>
+                <fieldset disabled="disabled">
+                    <div class="mb-3">
+                        <h3>Product Info</h3>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Key</label>
+                        <input type="text" class="form-control" id="key" name="key" value="<%= product[0].product_key %>">
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <fieldset disabled="disabled">
+            <div class="row g-2">
+                <% for(let i=0; i<product.length; i++) {%>
+                    <div class="col-md">
+                        <div class="mb-3">
+                            <h3><%= product[i].language %></h3>
+                        </div>
+                        <% if(product[i].language === 'ENGLISH'){%>
+                            <input type="text" class="form-control" name="eid" value="<%= product[i].id %>" hidden>
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" name="ename" value="<%= product[i].name %>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="Text" class="form-control" name="eprice" value="<%= product[i].price %>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="Text" class="form-control" name="ebrand" value="<%= product[i].brand %>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Color</label>
+                            <input type="Text" class="form-control" name="ecolor" value="<%= product[i].color %>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Size</label>
+                            <input type="Text" class="form-control" name="esize" value="<%= product[i].size %>">
+                            <label class="form-label">Unit</label>
+                            <input type="Text" class="form-control" name="eunit" value="<%= product[i].unit %>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <input type="Text" class="form-control" name="estatus" value="<%= product[i].status %>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <div class="form-floating">
+                                <textarea class="form-control" name="edescription" style="height: 100px"><%= product[i].description %></textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Property</label>
+                            <div class="form-floating">
+                                <textarea class="form-control" name="eproperty" style="height: 100px"><%= product[i].property %></textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Delivery</label>
+                            <div class="form-floating">
+                                <textarea class="form-control" name="edelivery" style="height: 100px"><%= product[i].delivery %></textarea>
+                            </div>
+                        </div>
+                        <% }else { %>
+                            <input type="text" class="form-control" name="tid" value="<%= product[i].id %>" hidden>
+                            <div class="mb-3">
+                                <label class="form-label">ชื่อ</label>
+                                <input type="text" class="form-control" name="tname" value="<%= product[i].name %>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">ราคา</label>
+                                <input type="Text" class="form-control" name="tprice" value="<%= product[i].price %>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">ยี่ห้อ</label>
+                                <input type="Text" class="form-control" name="tbrand" value="<%= product[i].brand %>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">สี</label>
+                                <input type="Text" class="form-control" name="tcolor" value="<%= product[i].color %>">
+                            </div>
+                            <div class="mb-3 ">
+                                <label class="form-label">ขนาด</label>
+                                <input type="Text" class="form-control" name="tsize" value="<%= product[i].size %>">
+                                <label class="form-label">หน่วย</label>
+                                <input type="Text" class="form-control" name="tunit" value="<%= product[i].unit %>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">สถานะสินค้า</label>
+                                <input type="Text" class="form-control" name="tstatus" value="<%= product[i].status %>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">คำบรรยายสินค้า</label>
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="tdescription" style="height: 100px"><%= product[i].description %></textarea>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">คุณสมบัติ</label>
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="tproperty" style="height: 100px"><%= product[i].property %></textarea>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">การจัดส่ง</label>
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="tdelivery" style="height: 100px"><%= product[i].delivery %></textarea>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } %>
+                </div>
+            </fieldset>
+        </div>
+        <br>
+        </div>
+
+
+
+        </div>
+    
+  </body>
+</html>

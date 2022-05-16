@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+            type: "GET",
+            url: "/admin/info/categories/types",
+            dataType: "json",
+            success: function (data) {
+                let id = '<%= id %>'
+                for (d in data) {
+                    
+                    var row = $(`
+                        <option value="${data[d].id}">${data[d].title_thai}</option>
+                    `);
+                    var selectedRow = $(`
+                        <option value="${data[d].id}" selected>${data[d].title_thai}</option>
+                    `);
+                    if(id == data[d].id){
+                        $("#types").append(selectedRow);
+                    }else{
+                        $("#types").append(row);
+                    }
+                
+                }
+            },
+          });
+
+            
+        });
+
+        $(function() {
+            // Multiple images preview in browser
+            var imagesPreview = function(input, placeToInsertImagePreview) {
+
+                if (input.files) {
+                    var filesAmount = input.files.length;
+
+                    for (i = 0; i < filesAmount; i++) {
+                        var reader = new FileReader();
+
+                        reader.onload = function(event) {
+                            $($.parseHTML('<img>')).attr('src', event.target.result).attr('class', 'img-thumbnail').attr('width', '200').appendTo(placeToInsertImagePreview);
+                        }
+                        reader.readAsDataURL(input.files[i]);
+                    }
+                }
+
+            };
+
+            $('#multi_files').on('change', function() {
+                $('.gallery').empty()
+                imagesPreview(this, 'div.gallery');
+            });
+        });
+
+
+        function createProduct() {
+        return new Promise((resolve, reject) => {
+            var form = document.getElementById('formCreate');
+            var data = new FormData(form);
+           
+            $.ajax({
+                type: "POST",
+                url: "/admin/create",
+                data: data,
+                enctype: 'multipart/form-data',
+                cache: false,
+                contentType: false,
+                processData: false,
+                /*success: function (data) {
+                    
+                },*/
+                statusCode: {
+                    203: (data)=>{
+                        //console.log(203)
+                        switch(data.msg){
+                            case "more-image": alert('จำนวนรูปมากเกินไป (อัพโหลดสูงสุด 12 รูป)') 
+                            break;
+                            case "no-image": alert('เลือกรูปภาพเพื่ออัพโหลด') 
+                            break;
+                            case "not-image": alert('อัพโหลดได้เฉพาะรูปภาพ .png / .jpg / .jepg') 
+                            break;
+                            case "unique": alert('key สินค้ามีในระบบแล้ว') 
+                            break;
+                            case "empty": alert('กรอกข้อมูลไม่ครบ') 
+                            break;
+                        }
+                    },
+                    200: (data)=>{
+                        let id = '<%= id %>'
+                        window.location.href = `/admin/categories/types/${id}/products`;
+                    }
+                }
+            });
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <nav
+      class="navbar flex-md-nowrap p-0"
+    >
+        <h2 class="col-sm-3 col-md-2 mr-0" >Create</h2>
+            <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <button class="btn btn-success" onclick="createProduct()">Save</button>
+                <!--a href="/admin/categories/types/<%= id %>/products"></a--><button class="btn btn-danger" onclick="history.back()">Cancel</button>
+            </li>
+        </ul>
+    </nav>
+        <br>
+          
+        <div>
+            
+            <form id="formCreate" action="/admin/create" method="POST" enctype="multipart/form-data">
+
+                <div >      
+                        <div class="col-md">
+                            <div class="mb-3">
+                                <h3>Product Info</h3>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" id="types" name="type">
+                                    
+                                  </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Key</label>
+                                <input type="text" class="form-control" id="key" name="key">
+                            </div>
+                            <div class="mb-3" >
+                                <label class="form-label">Image</label>
+                                <input class="form-control" type="file" id="multi_files" name="multi_files" accept='image/*' multiple>
+                                <div class="gallery"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Shopee Link</label>
+                                <input type="text" class="form-control" id="shopee" name="shopee">
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="recommend" id="recommend" name="recommend">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                  Recommend Products
+                                </label>
+                            </div>
+                        </div>
+                       
+                </div>
+                <br>
+                <div>
+            <div class="row g-2">
+            
+                <div class="col-md">
+                    <div class="mb-3">
+                        <h3>Thai</h3>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ชื่อ</label>
+                        <input type="text" class="form-control" name="tname">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ราคา</label>
+                        <input type="Text" class="form-control" name="tprice">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ยี่ห้อ</label>
+                        <input type="Text" class="form-control" name="tbrand">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">สี</label>
+                        <input type="Text" class="form-control" name="tcolor">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ขนาด</label>
+                        <input type="Text" class="form-control" name="tsize">
+                        <label class="form-label">หน่วย</label>
+                        <input type="Text" class="form-control" name="tunit">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">พื้นผิว</label>
+                        <input type="Text" class="form-control" name="tmaterial" >
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">สถานะสินค้า</label>
+                        <input type="Text" class="form-control" name="tstatus">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">คำบรรยายสินค้า</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="tdescription" style="height: 100px"></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">คุณสมบัติ</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="tproperty" style="height: 100px"></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">การจัดส่ง</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="tdelivery" style="height: 100px"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md">
+                    <div class="mb-3">
+                        <h3>English</h3>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" name="ename" >
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Price</label>
+                        <input type="Text" class="form-control" name="eprice" >
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Brand</label>
+                        <input type="Text" class="form-control" name="ebrand">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Color</label>
+                        <input type="Text" class="form-control" name="ecolor">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Size</label>
+                        <input type="Text" class="form-control" name="esize" >
+                        <label class="form-label">Unit</label>
+                        <input type="Text" class="form-control" name="eunit">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Material</label>
+                        <input type="Text" class="form-control" name="ematerial" >
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <input type="Text" class="form-control" name="estatus" >
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="edescription" style="height: 100px"></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Property</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="eproperty" style="height: 100px"></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Delivery</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="edelivery" style="height: 100px"></textarea>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+            <br>
+        </div>
+          </form>
+        
+    </div>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+      function deleteSlide(sid){
+
+        if(confirm('Are you sure to delete this slide?')){
+          $.ajax({
+            type: "POST",
+            url: "/admin/slide/delete",
+            data: {id: sid},
+            success: function (data) {
+              console.log(data)
+              location.reload()
+            },
+          });
+            }else{
+                console.log('nothing')
+            }
+        
+      }
+
+      function setTable() {
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            type: "GET",
+            url: "/admin/slides/get",
+            dataType: "json",
+            success: function (data) {
+              console.log(data)
+              for (d in data) {
+                //console.log(data)
+                var row = $(`
+                <tr>
+                  <td >${ Number(d)+1 }</td>
+                  <td >${ data[d].title_thai }</td>
+                  <td >${ data[d].title_english }</td>
+                  <td><a href="/admin/slide/${data[d].id}"><button class='btn btn-secondary'>Edit</button></a> <button class='btn btn-danger' onclick="deleteSlide(${data[d].id})">Delete</button></td>
+                </tr>
+                  `);
+                $("#tbody").append(row);
+              }
+              resolve(10);
+            },
+          });
+        });
+      }
+
+      $(document).ready(function () {
+        setTable().then((data) => {
+          $("#table").DataTable({
+            pageLength: 25,
+            "columns": [
+              { "width": "20%" },
+              null,
+              null,
+              null
+            ]
+          });
+          //console.log(data);
+        });
+
+      });
+    </script>
+  </head>
+  <body>
+    <nav
+      class="navbar sticky-top flex-md-nowrap p-0"
+    >
+          <h2 class="col-sm-3 col-md-2 mr-0" >Slides</h2>
+            <ul class="navbar-nav px-3">
+              <li class="nav-item text-nowrap">
+                <a href="/admin/slide"><button class="btn btn-success">Create</button></a>
+                
+              </li>
+            </ul>
+          </nav>
+          <br>
+          <div class="table-responsive">
+            <table id="table" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>number</th>
+                  <th>title_thai</th>
+                  <th>title_english</th>
+                  <th>options</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+              </tbody>
+            </table>
+          </div>
+        
+  </body>
+</html>

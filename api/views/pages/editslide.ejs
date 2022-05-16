@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+
+        function deleteSlide(){
+
+            if(confirm('Are you sure to delete this slide?')){
+            $.ajax({
+                type: "POST",
+                url: "/admin/slide/delete",
+                data: {id: '<%= data[0].id %>'},
+                success: function (data) {
+                    window.location.href = `/admin/slides`;
+                },
+            });
+                }else{
+                    console.log('nothing')
+                }
+
+        }
+
+        $(function() {
+            // Multiple images preview in browser
+            var imagesPreview = function(input, placeToInsertImagePreview) {
+
+                if (input.files) {
+                    var filesAmount = input.files.length;
+
+                    for (i = 0; i < filesAmount; i++) {
+                        var reader = new FileReader();
+
+                        reader.onload = function(event) {
+                            $($.parseHTML('<img>')).attr('src', event.target.result).attr('class', 'img-thumbnail').attr('width', '200').appendTo(placeToInsertImagePreview);
+                        }
+                        reader.readAsDataURL(input.files[i]);
+                    }
+                }
+
+            };
+
+            $('#multi_files').on('change', function() {
+                $('.gallery').empty()
+                imagesPreview(this, 'div.gallery');
+            });
+        });
+
+
+        function changeImage(){
+            $('#multi_files').removeAttr('hidden')
+        }
+
+        
+        function EditInfo() {
+            var form = document.getElementById('editInfo');
+            var data = new FormData(form);
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: "POST",
+                    url: "/admin/slide/edit",
+                    enctype: 'multipart/form-data',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    /*success: function (data) {
+                        
+                    },*/
+                    statusCode: {
+                        203: (data)=>{
+                            switch(data.msg){
+                                case "empty": alert('กรอกข้อมูลไม่ครบ') 
+                                break;
+                            }
+                        },
+                        200: (data)=>{
+                            console.log(data)
+                            alert('บันทึกแล้ว')
+                            location.reload();
+                        }
+                    }
+                });
+            });
+        }
+
+    </script>
+  </head>
+  <body>
+    <nav
+      class="navbar flex-md-nowrap p-0"
+    >
+        <h2 class="col-sm-3 col-md-2 mr-0" >Edit Slide</h2>
+            <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <button class="btn btn-danger" onclick="deleteSlide()">Delete</button>
+                <button class="btn btn-secondary" onclick="history.back()">BACK</button>
+            </li>
+        </ul>
+    </nav>
+        <br>
+          
+        <div>
+            <br>
+            
+            <form id="editInfo">
+
+                <div class="mb-3">
+                    <label class="form-label">Image</label>
+                    <input type="text" class="form-control" name="oldimage" value="<%= data[0].image %>" hidden>
+                    <div id="old-image" class="row">
+                 
+                            <div id="oldimage" class="col">
+                                <img src="/public/uploads/<%= data[0].image %>" class="img-thumbnail" width="200">
+                                <button type="button" onclick="changeImage()">Change Image</button>
+                            </div>
+         
+                    </div>
+                </div>
+                <div class="mb-3" >
+                    <input class="form-control" type="file" id="multi_files" name="multi_files" accept='image/*' hidden>
+                    <div class="gallery"></div>
+                </div>
+
+                <input type="text" class="form-control" id="id" name="id" value="<%= data[0].id %>" hidden>
+             
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" name="title_english" value="<%= data[0].title_thai %>">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subtitle</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="subtitle_english" style="height: 100px"><%= data[0].subtitle_english %></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">หัวข้อ</label>
+                        <input type="Text" class="form-control" name="title_thai" value="<%= data[0].title_english %>">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">คำอธิบาย</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="subtitle_thai" style="height: 100px"><%= data[0].subtitle_thai %></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">link</label>
+                        <input type="Text" class="form-control" name="link" value="<%= data[0].link %>">
+                    </div>
+                    
+                
+                <button type="button" onclick="EditInfo()" class="btn btn-success">Save</button>
+          </form>
+          <br>
+        </div>
+    
+  </body>
+</html>

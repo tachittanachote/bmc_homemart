@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+
+        $(function() {
+            // Multiple images preview in browser
+            var imagesPreview = function(input, placeToInsertImagePreview) {
+
+                if (input.files) {
+                    var filesAmount = input.files.length;
+
+                    for (i = 0; i < filesAmount; i++) {
+                        var reader = new FileReader();
+
+                        reader.onload = function(event) {
+                            $($.parseHTML('<img>')).attr('src', event.target.result).attr('class', 'img-thumbnail').attr('width', '200').appendTo(placeToInsertImagePreview);
+                        }
+                        reader.readAsDataURL(input.files[i]);
+                    }
+                }
+
+            };
+
+            $('#multi_files').on('change', function() {
+                $('.gallery').empty()
+                imagesPreview(this, 'div.gallery');
+            });
+        });
+
+
+        function createSlide() {
+        return new Promise((resolve, reject) => {
+            var form = document.getElementById('formCreate');
+            var data = new FormData(form);
+           
+            $.ajax({
+                type: "POST",
+                url: "/admin/slide/create",
+                data: data,
+                enctype: 'multipart/form-data',
+                cache: false,
+                contentType: false,
+                processData: false,
+                /*success: function (data) {
+                    
+                },*/
+                statusCode: {
+                    203: (data)=>{
+                        //console.log(203)
+                        switch(data.msg){
+                            case "more-image": alert('จำนวนรูปมากเกินไป (อัพโหลดสูงสุด 12 รูป)') 
+                            break;
+                            case "no-image": alert('เลือกรูปภาพเพื่ออัพโหลด') 
+                            break;
+                            case "not-image": alert('อัพโหลดได้เฉพาะรูปภาพ .png / .jpg / .jepg') 
+                            break;
+                            case "unique": alert('key สินค้ามีในระบบแล้ว') 
+                            break;
+                            case "empty": alert('กรอกข้อมูลไม่ครบ') 
+                            break;
+                            case "err": alert('ผิดพลาด') 
+                            break;
+                        }
+                    },
+                    200: (data)=>{
+                        window.location.href = `/admin/slides`;
+                    }
+                }
+            });
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <nav
+      class="navbar flex-md-nowrap p-0"
+    >
+        <h2 class="col-sm-3 col-md-2 mr-0" >Create</h2>
+            <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <button class="btn btn-success" onclick="createSlide()">Save</button>
+                <button class="btn btn-danger" onclick="history.back()">Cancel</button>
+            </li>
+        </ul>
+    </nav>
+        <br>
+          
+        <div>
+            
+            <form id="formCreate" action="/admin/slide/create" method="POST" enctype="multipart/form-data">
+
+                <br>
+                <div>
+            <div class="row g-2">
+            
+
+                <div class="col-md">
+                    <div class="mb-3">
+                        <h3>Slide Info</h3>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" name="title_english" >
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subtitle</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="subtitle_english" style="height: 100px"></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">หัวข้อ</label>
+                        <input type="Text" class="form-control" name="title_thai">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">คำอธิบาย</label>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="subtitle_thai" style="height: 100px"></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">link</label>
+                        <input type="Text" class="form-control" name="link" >
+                    </div>
+                    <div class="mb-3" >
+                        <label class="form-label">Image</label>
+                        <input class="form-control" type="file" id="multi_files" name="multi_files" accept='image/*'>
+                        <div class="gallery"></div>
+                    </div>
+                </div>
+                
+            </div>
+            <br>
+        </div>
+          </form>
+        
+    </div>
+  </body>
+</html>

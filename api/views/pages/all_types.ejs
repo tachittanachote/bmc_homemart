@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  </head>
+  <body>
+    <h2>Types</h2><br>
+    <div class="row" id="items">
+      <% for(let i=0; i<data.length; i++) {%>
+        <div class="col-sm-3">
+          <div class="card">
+              <div class="card-body">
+              <h5 class="card-title"><%= data[i].title_thai %></h5>
+              <p class="card-text"><%= data[i].title_english %></p>
+              <a href="/admin/categories/types/<%= data[i].id %>/products" class="btn btn-primary" id="<%= data[i].id %>">View</a>
+              </div>
+          </div>
+      </div>
+      <% } %>
+    </div>
+  </body>
+</html>
